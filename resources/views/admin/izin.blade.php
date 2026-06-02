@@ -1,0 +1,192 @@
+@extends('layouts.admin')
+
+@section('title', 'Izin & Sakit')
+
+@section('content')
+
+<div class="mb-6" data-aos="fade-down">
+    <h1 class="text-2xl font-bold text-slate-800">Izin & Sakit</h1>
+    <p class="text-slate-500 text-sm mt-0.5">Kelola pengajuan izin dan surat sakit siswa</p>
+</div>
+
+<!-- Search & Filter Card -->
+<div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 mb-6" data-aos="fade-up">
+    <div class="flex flex-col xl:flex-row items-end justify-between gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 w-full flex-1">
+            <div class="md:col-span-2">
+                <label for="filterTingkat" class="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Tingkat</label>
+                <select id="filterTingkat" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3 transition-all cursor-pointer">
+                    <option value="" selected disabled>-- Pilih --</option>
+                    <option value="X">Kelas X</option>
+                    <option value="XI">Kelas XI</option>
+                    <option value="XII">Kelas XII</option>
+                </select>
+            </div>
+            <div class="md:col-span-4">
+                <label for="filterJurusan" class="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Jurusan</label>
+                <select id="filterJurusan" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3 transition-all cursor-pointer">
+                    <option value="" selected disabled>-- Pilih Jurusan --</option>
+                    <option value="RPL 1">RPL 1</option>
+                    <option value="RPL 2">RPL 2</option>
+                    <option value="TKJ 1">TKJ 1</option>
+                    <option value="TKJ 2">TKJ 2</option>
+                    <option value="MM 1">MM 1</option>
+                    <option value="AKL 1">AKL 1</option>
+                </select>
+            </div>
+            <div class="relative md:col-span-6">
+                <label class="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Pencarian</label>
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <i class='bx bx-search text-slate-400 text-lg mt-6'></i>
+                </div>
+                <input type="text" id="searchIzin" class="block w-full p-3 pl-10 text-sm text-slate-900 border border-slate-200 rounded-xl bg-slate-50 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="Cari Nama atau NISN...">
+            </div>
+        </div>
+        <div class="w-full xl:w-auto">
+            <button class="w-full xl:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 hover:-translate-y-0.5 transition-all whitespace-nowrap">
+                <i class='bx bx-plus'></i> Input Izin Manual
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Table Section -->
+<div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden min-h-[40vh]" data-aos="fade-up" data-aos-delay="100">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50/50 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
+                <tr>
+                    <th class="px-6 py-5 text-center w-16">No</th>
+                    <th class="px-6 py-5">Nama Siswa</th>
+                    <th class="px-6 py-5 text-center">Tingkat & Jurusan</th>
+                    <th class="px-6 py-5">Status</th>
+                    <th class="px-6 py-5">Keterangan</th>
+                    <th class="px-6 py-5 text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="izinTableBody" class="divide-y divide-slate-50">
+                @php
+                    $izinList = [
+                        ['no' => 1, 'nama' => 'Andi Pratama', 'nisn' => '0054321001', 'tingkat' => 'XII', 'jurusan' => 'RPL 1', 'status' => 'Sakit', 'keterangan' => 'Demam Tinggi'],
+                        ['no' => 2, 'nama' => 'Siti Rahma', 'nisn' => '0065432102', 'tingkat' => 'XI', 'jurusan' => 'TKJ 2', 'status' => 'Izin', 'keterangan' => 'Acara Keluarga'],
+                        ['no' => 3, 'nama' => 'Budi Santoso', 'nisn' => '0076543203', 'tingkat' => 'X', 'jurusan' => 'MM 1', 'status' => 'Tanpa Keterangan', 'keterangan' => '-'],
+                        ['no' => 4, 'nama' => 'Dewi Lestari', 'nisn' => '0053210454', 'tingkat' => 'XII', 'jurusan' => 'AKL 1', 'status' => 'Sakit', 'keterangan' => 'Sakit Perut'],
+                        ['no' => 5, 'nama' => 'Fajar Nugroho', 'nisn' => '0061234567', 'tingkat' => 'XI', 'jurusan' => 'RPL 2', 'status' => 'Tanpa Keterangan', 'keterangan' => '-'],
+                    ];
+                @endphp
+
+                <!-- Empty State Row -->
+                <tr id="emptyStateIzin" class="hover:bg-transparent">
+                    <td colspan="6" class="py-20 text-center">
+                        <div class="flex flex-col items-center justify-center text-slate-400">
+                            <div class="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mb-3">
+                                <i class='bx bx-filter-alt text-3xl'></i>
+                            </div>
+                            <p class="text-sm font-medium">Silahkan pilih kelas untuk menampilkan data</p>
+                        </div>
+                    </td>
+                </tr>
+
+                @foreach($izinList as $item)
+                <tr class="hover:bg-slate-50/80 transition-all group izin-row hidden" data-tingkat="{{ $item['tingkat'] }}" data-jurusan="{{ $item['jurusan'] }}">
+                    <td class="px-6 py-4 text-center font-medium text-slate-400">{{ $item['no'] }}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                                {{ strtoupper(substr($item['nama'], 0, 1)) }}
+                            </div>
+                            <div>
+                                <span class="block font-bold text-slate-700">{{ $item['nama'] }}</span>
+                                <span class="block text-[10px] text-slate-400 uppercase tracking-tighter">NISN: {{ $item['nisn'] }}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="px-3 py-1 bg-slate-100 text-slate-700 text-[11px] font-bold rounded-full border border-slate-200">
+                            {{ $item['tingkat'] }} {{ $item['jurusan'] }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        @if($item['status'] == 'Sakit')
+                            <span class="px-3 py-1 bg-amber-50 text-amber-700 text-[11px] font-bold rounded-full border border-amber-100">
+                                <i class='bx bxs-plus-medical text-[10px] mr-1'></i> Sakit
+                            </span>
+                        @elseif($item['status'] == 'Izin')
+                            <span class="px-3 py-1 bg-blue-50 text-blue-700 text-[11px] font-bold rounded-full border border-blue-100">
+                                <i class='bx bxs-envelope text-[10px] mr-1'></i> Izin
+                            </span>
+                        @else
+                            <span class="px-3 py-1 bg-red-50 text-red-700 text-[11px] font-bold rounded-full border border-red-100">
+                                <i class='bx bxs-x-circle text-[10px] mr-1'></i> Alpha
+                            </span>
+                        @endif
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="text-slate-600 text-sm font-medium">{{ $item['keterangan'] }}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center justify-center gap-1">
+                            <button class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all" title="Lihat Berkas">
+                                <i class='bx bx-file text-lg'></i>
+                            </button>
+                            <button class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-lg transition-all" title="Setujui">
+                                <i class='bx bx-check text-lg'></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterTingkat = document.getElementById('filterTingkat');
+        const filterJurusan = document.getElementById('filterJurusan');
+        const searchIzin = document.getElementById('searchIzin');
+        const rows = document.querySelectorAll('.izin-row');
+        const emptyState = document.getElementById('emptyStateIzin');
+
+        function filterTable() {
+            const selectedTingkat = filterTingkat.value;
+            const selectedJurusan = filterJurusan.value;
+            const searchText = searchIzin.value.toLowerCase();
+
+            if (!selectedTingkat && !selectedJurusan) {
+                emptyState.classList.remove('hidden');
+                rows.forEach(row => row.classList.add('hidden'));
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            let found = false;
+
+            rows.forEach(row => {
+                const rowTingkat = row.getAttribute('data-tingkat');
+                const rowJurusan = row.getAttribute('data-jurusan');
+                const rowText = row.innerText.toLowerCase();
+                
+                const matchesTingkat = !selectedTingkat || rowTingkat === selectedTingkat;
+                const matchesJurusan = !selectedJurusan || rowJurusan === selectedJurusan;
+                const matchesSearch = rowText.includes(searchText);
+
+                if (matchesTingkat && matchesJurusan && matchesSearch) {
+                    row.classList.remove('hidden');
+                    found = true;
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            if(!found) emptyState.classList.remove('hidden');
+        }
+
+        filterTingkat.addEventListener('change', filterTable);
+        filterJurusan.addEventListener('change', filterTable);
+        searchIzin.addEventListener('input', filterTable);
+    });
+</script>
+
+@endsection
