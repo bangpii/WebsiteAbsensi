@@ -8,7 +8,7 @@
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
-        "axios": "^1.16.0",
+        "axios": "^1.17.0",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^2.0.0",
         "tailwindcss": "^4.0.0",
@@ -17,6 +17,8 @@
     "dependencies": {
         "aos": "^2.3.4",
         "boxicons": "^2.1.4",
-        "feather-icons": "^4.29.2"
+        "feather-icons": "^4.29.2",
+        "laravel-echo": "^2.3.4",
+        "pusher-js": "^8.5.0"
     }
 }

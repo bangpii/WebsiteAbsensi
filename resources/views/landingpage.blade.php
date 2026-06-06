@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Landing Page</title>
+    <title>Sistem Absensi SMKN 8 Medan</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -18,20 +18,15 @@
 
     <div class="min-h-screen flex items-center justify-center px-6">
 
-        <div 
+        <div
             class="bg-white rounded-3xl shadow-2xl p-10 max-w-xl w-full text-center"
             data-aos="zoom-in"
         >
 
             <!-- Icon -->
             <div class="flex justify-center items-center gap-4 mb-6">
-
-                <!-- Boxicons -->
                 <i class='bx bxs-school text-6xl text-blue-600'></i>
-
-                <!-- Feather Icons -->
                 <i data-feather="book-open" class="w-14 h-14 text-indigo-600"></i>
-
             </div>
 
             <!-- Title -->
@@ -44,28 +39,22 @@
                 Website absensi modern berbasis Laravel dan Tailwind CSS
             </p>
 
-            <!-- Buttons -->
-            <div class="flex justify-center gap-4">
-
-                <a 
-                    href="/admin/dashboard"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition duration-300"
+            <!-- Button Siswa Saja -->
+            <div class="flex justify-center">
+                <a
+                    href="{{ route('siswa.dashboard') }}"
+                    class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-semibold transition duration-300 text-lg"
                 >
-                    Admin
+                    Masuk sebagai Siswa
                 </a>
-
-                <a 
-                    href="/siswa/dashboard"
-                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold transition duration-300"
-                >
-                    Siswa
-                </a>
-
             </div>
 
         </div>
 
     </div>
+
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+    <script>AOS.init();</script>
 
 </body>
 </html>

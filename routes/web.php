@@ -1,133 +1,287 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-// use App\Http\Controllers\Admin\PengumumanController;
-// use App\Http\Controllers\Admin\EventController;
-// use App\Http\Controllers\Admin\PengaturanController;
-// use App\Http\Controllers\Admin\WaktuController;
+use App\Http\Controllers\Admin\AkunSiswaController;
+use App\Http\Controllers\Admin\LiburControllerAdmin;
+use App\Http\Controllers\Admin\IzinAdminController;
+use App\Http\Controllers\Admin\WaktuAdminController;
+use App\Http\Controllers\Admin\CmsPengumumanAdminController;
+use App\Http\Controllers\Admin\CmsEventAdminController;
+use App\Http\Controllers\Login\AuthLoginAdminController;
+use App\Http\Controllers\Admin\LokasiAdminController;
+use App\Http\Controllers\Admin\AbsensiAdminController;
+use App\Http\Controllers\Admin\DashboardAdminController;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+| ROOT — Redirect ke Siswa Landing
 |--------------------------------------------------------------------------
 */
 
-// Landing Page
 Route::get('/', function () {
-    return view('landingpage');
+    return redirect()->route('siswa.landingpage');
 });
 
-// Contoh rute baru untuk mengatasi 404
-Route::get('/dibuat', function () {
-    return "Halaman ini berhasil dibuat!";
-});
+/*
+|--------------------------------------------------------------------------
+| SISWA — Landing Page & Halaman Siswa
+|--------------------------------------------------------------------------
+*/
 
-// ========================
-// SISWA ROUTES
-// ========================
-Route::prefix('siswa')->name('siswa.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('siswa.dashboard');
-    })->name('dashboard');
+Route::prefix('siswa')
+    ->name('siswa.')
+    ->group(function () {
 
-    Route::get('/absensi', function () {
-        return view('siswa.absensi');
-    })->name('absensi');
+        Route::get('/landingpage', function () {
+            return view('landingpage');
+        })->name('landingpage');
 
-    Route::get('/izin', function () {
-        return view('siswa.izin');
-    })->name('izin');
+        Route::get('/dashboard', function () {
+            return view('siswa.dashboard');
+        })->name('dashboard');
 
-    Route::get('/jadwal', function () {
-        return view('siswa.jadwal');
-    })->name('jadwal');
+        Route::get('/absensi', function () {
+            return view('siswa.absensi');
+        })->name('absensi');
 
-    Route::get('/pengumuman', function () {
-        return view('siswa.pengumumansiswa');
-    })->name('pengumuman');
+        Route::get('/izin', function () {
+            return view('siswa.izin');
+        })->name('izin');
 
-    Route::get('/event', function () {
-        return view('siswa.eventsiswa');
-    })->name('event');
+        Route::get('/jadwal', function () {
+            return view('siswa.jadwal');
+        })->name('jadwal');
 
-    Route::get('/mail', function () {
-        return view('siswa.mail');
-    })->name('mail');
-});
+        Route::get('/pengumuman', function () {
+            return view('siswa.pengumumansiswa');
+        })->name('pengumuman');
 
-// ========================
-// ADMIN ROUTES
-// ========================
-Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/event', function () {
+            return view('siswa.eventsiswa');
+        })->name('event');
 
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+        Route::get('/mail', function () {
+            return view('siswa.mail');
+        })->name('mail');
+    });
 
-    Route::get('/akun-siswa', function () {
-        return view('admin.akun-siswa');
-    })->name('akun-siswa');
+/*
+|--------------------------------------------------------------------------
+| AUTH ADMIN — Login & Logout
+|--------------------------------------------------------------------------
+*/
 
-    Route::get('/akun-admin', function () {
-        return view('admin.akun-admin');
-    })->name('akun-admin');
+Route::get('/admin/login', [AuthLoginAdminController::class, 'index'])
+    ->name('login');
 
-    Route::get('/absensi', function () {
-        return view('admin.absensi');
-    })->name('absensi');
+Route::post('/admin/login', [AuthLoginAdminController::class, 'login'])
+    ->name('login.post');
 
-    Route::get('/libur', function () {
-        return view('admin.libur');
-    })->name('libur');
+Route::post('/admin/logout', [AuthLoginAdminController::class, 'logout'])
+    ->name('logout');
 
-    Route::post('/libur', function () {
-        return back()->with('success', 'Hari libur sekolah berhasil ditambahkan (Simulasi)');
-    })->name('libur.store');
+/*
+|--------------------------------------------------------------------------
+| ADMIN — Dilindungi Middleware admin.session
+|--------------------------------------------------------------------------
+*/
 
-    Route::get('/izin', function () {
-        return view('admin.izin');
-    })->name('izin');
+Route::middleware('admin.session')
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
 
-    Route::get('/waktu', function () {
-        // Mengirimkan array kosong agar variabel $settings di view tidak undefined
-        return view('admin.waktu', ['settings' => []]);
-    })->name('waktu');
+        /*
+        |------------------------------------------------------------------
+        | Dashboard
+        |------------------------------------------------------------------
+        */
 
-    // Tambahkan rute POST untuk menangani update waktu
-    Route::post('/waktu/update', function () {
-        return back()->with('success', 'Pengaturan waktu berhasil diperbarui (Simulasi)');
-    })->name('waktu.update');
+        Route::get(
+            '/dashboard',
+            [DashboardAdminController::class, 'index']
+        )->name('dashboard');
 
-    // Rute Pengumuman (Mockup)
-    Route::get('/pengumuman', function () { return view('admin.pengumuman'); })->name('pengumuman.index');
-    Route::get('/pengumuman/create', function () { return view('admin.create'); })->name('pengumuman.create');
-    Route::post('/pengumuman', function () { return redirect()->route('admin.pengumuman.index')->with('success', 'Pengumuman berhasil dibuat (Simulasi)'); })->name('pengumuman.store');
-    Route::get('/pengumuman/{id}/edit', function ($id) { 
-        $pengumuman = (object)['id' => $id, 'judul' => 'Contoh Judul Pengumuman', 'isi_pengumuman' => 'Isi pengumuman simulasi.', 'status' => 'published'];
-        return view('admin.edit', compact('pengumuman')); 
-    })->name('pengumuman.edit');
-    Route::put('/pengumuman/{id}', function () { return redirect()->route('admin.pengumuman.index')->with('success', 'Pengumuman diperbarui (Simulasi)'); })->name('pengumuman.update');
-    Route::delete('/pengumuman/{id}', function () { return back()->with('success', 'Pengumuman dihapus (Simulasi)'); })->name('pengumuman.destroy');
+        /*
+        |------------------------------------------------------------------
+        | Akun Siswa
+        |------------------------------------------------------------------
+        */
 
-    // Rute Event (Mockup)
-    Route::get('/event', function () { 
-        return view('admin.event'); 
-    })->name('event.index');
-    Route::get('/event/create', function () { 
-        return "Halaman Tambah Event (Simulasi)"; 
-    })->name('event.create');
-    Route::post('/event', function () { 
-        return redirect()->route('admin.event.index')->with('success', 'Event berhasil dibuat (Simulasi)'); 
-    })->name('event.store');
-    Route::get('/event/{id}/edit', function ($id) { 
-        return "Halaman Edit Event ID: $id (Simulasi)"; 
-    })->name('event.edit');
-    Route::delete('/event/{id}', function () { 
-        return back()->with('success', 'Event dihapus (Simulasi)'); 
-    })->name('event.destroy');
+        Route::get('/akun-siswa', [AkunSiswaController::class, 'index'])
+            ->name('akun-siswa');
 
-    Route::get('/pengaturan', function () {
-        return view('admin.pengaturan');
-    })->name('pengaturan');
+        Route::post('/akun-siswa/sync', [AkunSiswaController::class, 'sync'])
+            ->name('akun-siswa.sync');
 
-});
+        Route::get('/akun-siswa/{id}', [AkunSiswaController::class, 'show'])
+            ->name('akun-siswa.show');
+
+        /*
+        |------------------------------------------------------------------
+        | Akun Admin
+        |------------------------------------------------------------------
+        */
+
+        Route::get('/akun-admin', function () {
+            return view('admin.akun-admin');
+        })->name('akun-admin');
+
+        /*
+        |--------------------------------------------------------------------------
+        | ABSENSI
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/absensi', [AbsensiAdminController::class, 'index'])
+            ->name('absensi');
+        Route::get('/absensi/statistik', [AbsensiAdminController::class, 'statistik'])
+            ->name('absensi.statistik');
+        Route::get('/absensi/{id}', [AbsensiAdminController::class, 'show'])
+            ->name('absensi.show');
+        Route::put('/absensi/{id}', [AbsensiAdminController::class, 'update'])
+            ->name('absensi.update');
+        Route::delete('/absensi/{id}', [AbsensiAdminController::class, 'destroy'])
+            ->name('absensi.destroy');
+
+       /*
+        |--------------------------------------------------------------------------
+        | Libur
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/libur', [LiburControllerAdmin::class, 'index'])
+        ->name('libur');
+
+        Route::post('/libur', [LiburControllerAdmin::class, 'store'])
+        ->name('libur.store');
+
+        Route::put('/libur/{id}', [LiburControllerAdmin::class, 'update'])
+        ->name('libur.update');
+
+        Route::delete('/libur/{id}', [LiburControllerAdmin::class, 'destroy'])
+        ->name('libur.destroy');
+
+        Route::post('/libur/{id}/toggle', [LiburControllerAdmin::class, 'toggle'])
+        ->name('libur.toggle');
+
+        Route::get('/libur/{id}', [LiburControllerAdmin::class, 'show'])
+        ->name('libur.show');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Izin & Sakit
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/izin', [IzinAdminController::class, 'index'])
+        ->name('izin');
+
+        Route::get('/izin/{id}', [IzinAdminController::class, 'show'])
+            ->name('izin.show');
+
+        Route::post('/izin/{id}/approve', [IzinAdminController::class, 'approve'])
+            ->name('izin.approve');
+
+        Route::post('/izin/{id}/pesan', [IzinAdminController::class, 'kirimPesan'])
+            ->name('izin.pesan');
+
+        Route::post('/izin/{id}/read', [IzinAdminController::class, 'markAsRead'])
+            ->name('izin.read');
+      /*
+    |--------------------------------------------------------------------------
+    | Pengaturan Waktu
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/waktu', [WaktuAdminController::class, 'index'])
+    ->name('waktu');
+
+    Route::post('/waktu', [WaktuAdminController::class, 'store'])
+    ->name('waktu.store');
+
+    Route::get('/waktu/{id}', [WaktuAdminController::class, 'show'])
+    ->name('waktu.show');
+
+    Route::put('/waktu/{id}', [WaktuAdminController::class, 'update'])
+    ->name('waktu.update');
+
+    Route::delete('/waktu/{id}', [WaktuAdminController::class, 'destroy'])
+    ->name('waktu.destroy');
+
+    Route::post('/waktu/{id}/toggle', [WaktuAdminController::class, 'toggle'])
+    ->name('waktu.toggle');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Pengumuman
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/pengumuman', [CmsPengumumanAdminController::class, 'index'])
+        ->name('pengumuman.index');
+
+        Route::post('/pengumuman', [CmsPengumumanAdminController::class, 'store'])
+        ->name('pengumuman.store');
+
+        Route::get('/pengumuman/{id}', [CmsPengumumanAdminController::class, 'show'])
+        ->name('pengumuman.show');
+
+        Route::put('/pengumuman/{id}', [CmsPengumumanAdminController::class, 'update'])
+        ->name('pengumuman.update');
+
+        Route::delete('/pengumuman/{id}', [CmsPengumumanAdminController::class, 'destroy'])
+        ->name('pengumuman.destroy');
+
+        Route::post('/pengumuman/{id}/toggle', [CmsPengumumanAdminController::class, 'toggle'])
+        ->name('pengumuman.toggle');
+
+       /*
+        |--------------------------------------------------------------------------
+        | Event
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/event', [CmsEventAdminController::class, 'index'])
+        ->name('event.index');
+
+        Route::post('/event', [CmsEventAdminController::class, 'store'])
+        ->name('event.store');
+
+        Route::get('/event/{id}', [CmsEventAdminController::class, 'show'])
+        ->name('event.show');
+
+        Route::put('/event/{id}', [CmsEventAdminController::class, 'update'])
+        ->name('event.update');
+
+        Route::delete('/event/{id}', [CmsEventAdminController::class, 'destroy'])
+        ->name('event.destroy');
+
+        Route::post('/event/{id}/toggle', [CmsEventAdminController::class, 'toggle'])
+        ->name('event.toggle');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Lokasi
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/lokasi', [LokasiAdminController::class, 'index'])
+        ->name('lokasi');
+
+        Route::get('/lokasi/detail', [LokasiAdminController::class, 'show'])
+            ->name('lokasi.show');
+
+        Route::put('/lokasi', [LokasiAdminController::class, 'update'])
+            ->name('lokasi.update');
+
+        /*
+        |------------------------------------------------------------------
+        | Pengaturan
+        |------------------------------------------------------------------
+        */
+
+        Route::get('/pengaturan', function () {
+            return view('admin.pengaturan');
+        })->name('pengaturan');
+    });
